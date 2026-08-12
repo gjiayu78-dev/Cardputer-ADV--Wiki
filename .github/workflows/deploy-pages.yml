@@ -50,7 +50,7 @@ jobs:
             if [ -n "$first_page" ]; then
               cp "$first_page" '.pages-docs/index.md'
             else
-              printf '# Cardputer ADV 中文 Wiki\n\n未找到 GitHub Wiki 页面。\n' > .pages-docs/index.md
+              printf '# Cardputer ADV 中文 Wiki\n' > .pages-docs/index.md
             fi
           fi
 
@@ -61,29 +61,29 @@ jobs:
 
           root = Path('.pages-docs')
 
-          # Bruce 1.16.1 一级菜单。英文保留实机原文，中文用于解释。
           level1 = [
-              ('WiFi', '无线网络', '连接 Wi-Fi、查看 AP、局域网与网络工具'),
-              ('BLE', '低功耗蓝牙', 'BLE 扫描、广播、键盘及相关工具'),
-              ('RF', '射频 / Sub-GHz', 'Sub-GHz 扫描、频谱与信号工具'),
-              ('NRF24', 'NRF24 2.4GHz 无线', 'NRF24L01 相关 2.4GHz 工具'),
-              ('LoRa', '远距离无线通信', 'LoRa 通信、聊天、频率等'),
-              ('FM', '调频广播', '兼容 FM 模块时使用'),
-              ('IR', '红外', '红外接收、发送与遥控功能'),
-              ('Ethernet', '有线网络', 'W5500 等有线网络功能'),
-              ('GPS', '卫星定位', '定位、轨迹与 GPS 数据'),
-              ('RFID', '射频识别 / NFC', 'RFID / NFC 标签读取与写入'),
-              ('Files', '文件管理', 'SD、LittleFS、WebUI 与文件操作'),
-              ('Scripts', '脚本', 'JavaScript 等脚本功能'),
-              ('Clock', '时钟', 'RTC、NTP 与时间功能'),
-              ('Others', '其他工具', '二维码、麦克风、USB Keyboard 等'),
-              ('Config', '系统设置', '显示、启动、电源、网络与硬件配置'),
+              ('WiFi', '无线网络'),
+              ('BLE', '低功耗蓝牙'),
+              ('RF', '射频 / Sub-GHz'),
+              ('NRF24', 'NRF24 2.4GHz 无线'),
+              ('LoRa', '远距离无线通信'),
+              ('FM', '调频广播'),
+              ('IR', '红外'),
+              ('Ethernet', '有线网络'),
+              ('GPS', '卫星定位'),
+              ('RFID', '射频识别 / NFC'),
+              ('Files', '文件管理'),
+              ('Scripts', '脚本'),
+              ('Clock', '时钟'),
+              ('Others', '其他工具'),
+              ('Config', '系统设置'),
           ]
 
-          # 已核对/已在现有 Bruce Wiki 中使用的二、三级菜单翻译。
-          # 不改英文原名，只在显示时补中文。
           zh = {
-              # WiFi
+              # 一级菜单
+              **dict(level1),
+
+              # WiFi 二级菜单（Bruce 1.16.1 实机英文原名）
               'Connect to Wifi': '连接到 Wi-Fi',
               'Start WiFi AP': '启动 Wi-Fi 热点',
               'Turn Off WiFi': '关闭 Wi-Fi',
@@ -104,6 +104,8 @@ jobs:
               'Responder': '网络响应测试',
               'Brucegotchi': 'Brucegotchi 模式',
               'WiFi Pass Recovery': 'Wi-Fi 密码恢复工具',
+
+              # WiFi 三级菜单
               'Target Atks': '目标网络测试',
               'Information': '信息',
               'Deauth': '断开连接测试',
@@ -123,50 +125,37 @@ jobs:
               'Station Deauth (Single)': '单个客户端断开测试',
               'Deauth All Clients': '全部客户端断开测试',
               'Deauth Target List': '目标列表断开测试',
-              'Change MAC': '修改 MAC 地址',
-              'Add Evil Wifi': '添加测试 Wi-Fi',
-              'Remove Evil Wifi': '移除测试 Wi-Fi',
-              'SSH/Telnet Log OFF': '关闭 SSH/Telnet 日志',
-              'SSH/Telnet Log ON': '开启 SSH/Telnet 日志',
-              'Evil Wifi Settings': '测试 Wi-Fi 设置',
-              'Set Gateway IP': '设置网关 IP',
-              'Password Mode': '密码模式',
-              'Rename /creds': '重命名 /creds 路径',
-              'Allow /creds access': '允许访问 /creds',
-              'Rename /ssid': '重命名 /ssid 路径',
-              'Allow /ssid access': '允许访问 /ssid',
-              'Display endpoints': '显示访问端点',
-              'Hidden Networks:ON': '隐藏网络：开启',
-              'Hidden Networks:OFF': '隐藏网络：关闭',
 
-              # BLE
+              # BLE 常见菜单
               'BLE Scan': '蓝牙扫描',
               'BLE Spam': 'BLE 广播测试',
+              'BLE Suite': 'BLE 工具套件',
+              'Media Cmds': '媒体控制命令',
+              'iBeacon': 'iBeacon 广播',
+              'Bad BLE': 'BLE 测试工具',
+              'BLE Keyboard': 'BLE 键盘',
+              'Ninebot': 'Ninebot 工具',
+              'Presenter mode': '演示器模式',
               'Apple Pairing Prompt': 'Apple 配对提示',
               'Apple Action Modal': 'Apple 操作弹窗',
               'Apple Not Your Device': 'Apple 非本机设备提示',
               'Android Device Alert': 'Android 设备提示',
-              'Pixel Fast Pair': 'Pixel 快速配对',
-              'Generic Android Alert': '通用 Android 提示',
-              'Random / All': '随机 / 全部',
               'Windows Swift Pair': 'Windows 快速配对',
               'Samsung BLE Spam': 'Samsung BLE 广播测试',
-              'Galaxy Buds': 'Galaxy Buds',
-              'Galaxy Watch': 'Galaxy Watch',
-              'Generic Samsung': '通用 Samsung',
               'BLE Beacon Spam': 'BLE Beacon 广播测试',
-              'TX Power': '发射功率',
-              'MAC Randomization': 'MAC 随机化',
-              'Every Packet': '每个数据包',
-              'Every 2 Packets': '每 2 个数据包',
-              'Every 5 Packets': '每 5 个数据包',
+              'Random / All': '随机 / 全部',
 
-              # LoRa
+              # LoRa / GPS / Files / Config 常见菜单
               'Chat': '聊天',
               'Change username': '修改用户名',
               'Change Frequency': '修改频率',
-
-              # Config
+              'Wardriving': '巡航扫描记录',
+              'GPS Tracker': 'GPS 轨迹记录',
+              'SD Card': 'SD 卡',
+              'LittleFS': '内部文件系统',
+              'WebUI': '网页管理界面',
+              'Connect': '设备互联',
+              'Mass Storage': 'USB 大容量存储',
               'Display & UI': '显示与界面',
               'LED Config': 'LED 设置',
               'Audio Config': '音频设置',
@@ -176,86 +165,51 @@ jobs:
               'Dev Mode': '开发者模式',
               'About': '关于',
               'Main Menu': '主菜单',
-              'Brightness': '亮度',
-              'Dim Time': '息屏时间',
-              'Orientation': '屏幕方向',
-              'UI Color': '界面颜色',
-              'UI Theme': '界面主题',
-              'InstaBoot: ON': '快速启动：开启',
-              'InstaBoot: OFF': '快速启动：关闭',
-              'WiFi Startup: ON': '开机 Wi-Fi：开启',
-              'WiFi Startup: OFF': '开机 Wi-Fi：关闭',
-              'Startup App': '启动应用',
-              'Hide/Show Apps': '隐藏 / 显示应用',
-              'Keyboard Language': '键盘语言',
-              'Advanced': '高级设置',
-              'Set Device pins': '设置设备引脚',
-              'Toggle BLE API': '切换 BLE API',
-              'BadUSB/BLE': 'BadUSB / BLE 模式',
-              'BLE name': '蓝牙名称',
-              'Network Creds': '网络凭据',
-              'Factory Reset': '恢复出厂设置',
-              'Deep Sleep': '深度睡眠',
-              'Sleep': '睡眠',
-              'Restart': '重启',
-              'Power Off': '关机',
-              'Serial use USB': '串口使用 USB',
-              'Serial use UART': '串口使用 UART',
-              'Disable DevMode': '关闭开发者模式',
-              'I2C Finder': 'I2C 设备查找',
-              'CC1101 Pins': 'CC1101 引脚',
-              'NRF24  Pins': 'NRF24 引脚',
-              'LoRa Pins': 'LoRa 引脚',
-              'ST25R3916 Pins': 'ST25R3916 引脚',
-              'W5500 Pins': 'W5500 引脚',
-              'SDCard Pins': 'SD 卡引脚',
-              'I2C Pins': 'I2C 引脚',
-              'UART Pins': 'UART 引脚',
-              'GPS Pins': 'GPS 引脚',
               'Back': '返回',
           }
-          for eng, cn, _ in level1:
-              zh.setdefault(eng, cn)
-
-          def strip_heading_label(label: str) -> str:
-              label = re.sub(r'\s*\{#[^}]+\}\s*$', '', label).strip()
-              # 去掉之前构建层已经补过的中文括号，保留英文原名作为匹配键。
-              m = re.match(r'^(.*?)[（(][^()（）]+[）)]\s*$', label)
-              if m and m.group(1).strip() in zh:
-                  label = m.group(1).strip()
-              return label
 
           def slug(text: str) -> str:
               s = unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode().lower()
               s = re.sub(r'[^a-z0-9]+', '-', s).strip('-')
               return s or 'section'
 
-          # GitHub Wiki 链接语法 -> MkDocs 链接。
+          def bilingual(text: str) -> str:
+              key = text.strip()
+              if key in zh and '（' not in key:
+                  return f'{key}（{zh[key]}）'
+              return text
+
+          # 转 GitHub Wiki 链接语法。
           for p in root.glob('*.md'):
               text = p.read_text(encoding='utf-8')
               text = re.sub(r'\[\[([^\]|]+)\|([^\]]+)\]\]', lambda m: f'[{m.group(1)}]({m.group(2)}.md)', text)
               text = re.sub(r'\[\[([^\]|]+)\]\]', lambda m: f'[{m.group(1)}]({m.group(1)}.md)', text)
               p.write_text(text, encoding='utf-8')
 
-          files = [p for p in root.glob('*.md') if p.name != 'index.md']
+          # 关键修正：代码块里的菜单树也改成“英文（中文）”。
+          # 这正是页面上 WiFi ├─ Connect to Wifi ... 那一块。
+          for p in root.glob('*.md'):
+              lines = p.read_text(encoding='utf-8').splitlines()
+              out = []
+              in_fence = False
+              for line in lines:
+                  if line.lstrip().startswith('```'):
+                      in_fence = not in_fence
+                      out.append(line)
+                      continue
+                  if in_fence:
+                      m = re.match(r'^([\s│├└─]*)([^│├└─].*?)\s*$', line)
+                      if m:
+                          prefix, label = m.groups()
+                          label = label.strip()
+                          if label in zh:
+                              line = prefix + f'{label}（{zh[label]}）'
+                      out.append(line)
+                      continue
+                  out.append(line)
+              p.write_text('\n'.join(out) + '\n', encoding='utf-8')
 
-          def score_file(path: Path, eng: str):
-              s = path.stem.lower()
-              e = eng.lower()
-              score = 0
-              if s == e: score += 100
-              if f'bruce-{e}' in s: score += 80
-              if re.search(rf'(^|[-_]){re.escape(e)}($|[-_])', s): score += 60
-              if e in s: score += 30
-              if 'bruce' in s: score += 10
-              if '主菜单' in s or 'main-menu' in s: score -= 20
-              return score
-
-          def find_target(eng: str):
-              ranked = sorted(((score_file(p, eng), p) for p in files), key=lambda x: x[0], reverse=True)
-              return ranked[0][1] if ranked and ranked[0][0] > 0 else None
-
-          # 把所有能识别的一级/二级/三级标题改成“英文（中文）”，并加入稳定锚点。
+          # 标题里的菜单名也统一显示中英对照，并生成锚点供跳转。
           page_sections = {}
           for p in root.glob('*.md'):
               if p.name == 'index.md':
@@ -263,8 +217,8 @@ jobs:
               lines = p.read_text(encoding='utf-8').splitlines()
               out = []
               sections = []
-              used = {}
               in_fence = False
+              used = {}
               for line in lines:
                   if line.lstrip().startswith('```'):
                       in_fence = not in_fence
@@ -278,102 +232,52 @@ jobs:
                       out.append(line)
                       continue
                   marks, raw = m.groups()
-                  key = strip_heading_label(raw)
-                  if key not in zh:
+                  raw = re.sub(r'\s*\{#[^}]+\}\s*$', '', raw).strip()
+                  base_key = raw
+                  old = re.match(r'^(.*?)[（(][^()（）]+[）)]$', raw)
+                  if old and old.group(1).strip() in zh:
+                      base_key = old.group(1).strip()
+                  if base_key not in zh:
                       out.append(line)
                       continue
-                  base = 'menu-' + slug(key)
+                  base = 'menu-' + slug(base_key)
                   used[base] = used.get(base, 0) + 1
                   anchor = base if used[base] == 1 else f'{base}-{used[base]}'
-                  title = f'{key}（{zh[key]}）'
-                  out.append(f'{marks} {title} {{#{anchor}}}')
-                  sections.append((len(marks), key, zh[key], anchor))
+                  out.append(f'{marks} {base_key}（{zh[base_key]}） {{#{anchor}}}')
+                  sections.append((len(marks), base_key, zh[base_key], anchor))
               p.write_text('\n'.join(out) + '\n', encoding='utf-8')
               page_sections[p.name] = sections
 
-          # 一级菜单目标页面。
-          l1_targets = {eng: find_target(eng) for eng, _, _ in level1}
-
-          # 为每个 Bruce 页面插入“本页菜单导航”，二级/三级标题均可点击跳转。
-          for p in root.glob('*.md'):
-              if p.name in ('index.md', 'Bruce-完整菜单导航.md', 'Bruce-一级菜单-中英对照.md'):
-                  continue
-              secs = page_sections.get(p.name, [])
-              if len(secs) < 2 or 'bruce' not in p.stem.lower():
-                  continue
-              text = p.read_text(encoding='utf-8')
-              nav = ['<!-- BRUCE_PAGE_TOC -->', '', '## 本页菜单导航 / Menu Navigation', '']
-              min_level = min(x[0] for x in secs)
-              for lvl, eng, cn, anchor in secs:
-                  indent = '  ' * max(0, lvl - min_level)
-                  nav.append(f'{indent}- [{eng}（{cn}）](#{anchor})')
-              block = '\n'.join(nav) + '\n\n'
-              # 放在第一个标题后面。
-              m = re.search(r'^#\s+.*$', text, re.M)
-              if m:
-                  pos = m.end()
-                  text = text[:pos] + '\n\n' + block + text[pos:].lstrip('\n')
-                  p.write_text(text, encoding='utf-8')
-
-          # 生成“一级 → 二级 → 三级”完整可点击导航页。
-          full = [
-              '# Bruce 完整菜单导航 / Full Menu',
-              '',
-              '> 一级、二级、三级菜单均保留 Bruce 英文原名，并补充中文。点击菜单可直接跳到对应说明位置。',
-              ''
-          ]
-          first_nav = [
-              '# Bruce 一级菜单中英对照 / Main Menu', '',
-              '> 点击一级菜单可直接进入对应详细页面；进入后可继续点击二级、三级菜单。', '',
-              '| 一级菜单 | 中文 | 主要作用 |', '|---|---|---|'
-          ]
-
-          for eng, cn, desc in level1:
-              target = l1_targets.get(eng)
-              dest = target.name if target else f'Bruce-完整菜单导航.md#menu-{slug(eng)}'
-              first_nav.append(f'| [{eng}]({dest}) | [{cn}]({dest}) | {desc} |')
-              full += [f'## {eng}（{cn}） {{#menu-{slug(eng)}}}', '', desc + '。', '']
-              if target:
-                  full.append(f'**[进入 {eng}（{cn}）详细页 →]({target.name})**')
-                  full.append('')
-                  secs = page_sections.get(target.name, [])
-                  # 跳过与一级菜单同名的标题，只列二、三级菜单。
-                  filtered = [x for x in secs if x[1] != eng]
-                  if filtered:
-                      base_level = min(x[0] for x in filtered)
-                      for lvl, sub_eng, sub_cn, anchor in filtered:
-                          indent = '  ' * max(0, lvl - base_level)
-                          full.append(f'{indent}- [{sub_eng}（{sub_cn}）]({target.name}#{anchor})')
-                      full.append('')
-              else:
-                  full += ['当前 Wiki 暂无独立详细页。', '']
-
-          (root / 'Bruce-一级菜单-中英对照.md').write_text('\n'.join(first_nav) + '\n', encoding='utf-8')
-          (root / 'Bruce-完整菜单导航.md').write_text('\n'.join(full) + '\n', encoding='utf-8')
-
-          # 如果 Wiki 本身已有“主菜单中英对照”页，则同步成新可点击版本。
-          for p in root.glob('*.md'):
-              if p.name in ('Bruce-一级菜单-中英对照.md', 'Bruce-完整菜单导航.md'):
-                  continue
-              n = p.stem.lower()
-              if ('主菜单' in p.stem and ('中英' in p.stem or '对照' in p.stem)) or 'main-menu' in n:
-                  p.write_text((root / 'Bruce-一级菜单-中英对照.md').read_text(encoding='utf-8'), encoding='utf-8')
-
-          # 首页增加一级菜单和完整菜单两个入口。
+          # 首页增加可点击的一级菜单入口。
           index = root / 'index.md'
           if index.exists():
               text = index.read_text(encoding='utf-8')
-              marker = '<!-- BRUCE_MAIN_MENU_NAV_V2 -->'
+              marker = '<!-- BRUCE_BILINGUAL_MENU -->'
               if marker not in text:
-                  quick = ['', marker, '', '## Bruce 菜单快速入口 / Menu', '',
-                           '- [完整菜单导航：一级 → 二级 → 三级](Bruce-完整菜单导航.md)',
-                           '- [一级菜单中英对照](Bruce-一级菜单-中英对照.md)', '']
-                  for eng, cn, _ in level1:
-                      target = l1_targets.get(eng)
-                      dest = target.name if target else f'Bruce-完整菜单导航.md#menu-{slug(eng)}'
-                      quick.append(f'- [{eng}（{cn}）]({dest})')
-                  text += '\n' + '\n'.join(quick) + '\n'
+                  block = ['', marker, '', '## Bruce 一级菜单 / Main Menu', '']
+                  files = list(root.glob('*.md'))
+                  for eng, cn in level1:
+                      candidates = [x for x in files if eng.lower() in x.stem.lower() and 'bruce' in x.stem.lower()]
+                      if candidates:
+                          dest = candidates[0].name
+                      else:
+                          dest = f'Bruce-完整菜单导航.md#menu-{slug(eng)}'
+                      block.append(f'- [{eng}（{cn}）]({dest})')
+                  text += '\n' + '\n'.join(block) + '\n'
                   index.write_text(text, encoding='utf-8')
+
+          # 生成一份完整、可点击的一级菜单页。
+          nav = ['# Bruce 完整菜单导航 / Full Menu', '', '> 菜单英文与 Bruce 实机保持一致，中文放在英文后方。', '']
+          files = list(root.glob('*.md'))
+          for eng, cn in level1:
+              candidates = [x for x in files if eng.lower() in x.stem.lower() and 'bruce' in x.stem.lower()]
+              dest = candidates[0].name if candidates else '#'
+              nav.append(f'## {eng}（{cn}） {{#menu-{slug(eng)}}}')
+              nav.append('')
+              if dest != '#':
+                  nav.append(f'[进入 {eng}（{cn}）详细说明 →]({dest})')
+              nav.append('')
+          (root / 'Bruce-完整菜单导航.md').write_text('\n'.join(nav) + '\n', encoding='utf-8')
           PY
 
       - name: Build site
