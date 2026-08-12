@@ -59,13 +59,119 @@ jobs:
           import re
 
           root = Path('.pages-docs')
+
+          menus = [
+              ('WiFi', '无线网络', '连接 Wi-Fi、查看 AP、局域网与网络工具'),
+              ('BLE', '低功耗蓝牙', 'BLE 扫描、广播、键盘及相关工具'),
+              ('RF', '射频 / Sub-GHz', 'CC1101、Sub-GHz 扫描、频谱与信号工具'),
+              ('NRF24', '2.4GHz 无线模块', 'NRF24L01 相关 2.4GHz 工具'),
+              ('LoRa', '远距离无线通信', 'LoRa 通信、聊天、频率等'),
+              ('FM', '调频广播', '兼容 FM 模块时使用'),
+              ('IR', '红外', '红外接收、发送与遥控功能'),
+              ('Ethernet', '有线网络', 'W5500 等有线网络功能'),
+              ('GPS', '卫星定位', '定位、轨迹与 GPS 数据'),
+              ('RFID', '射频识别 / NFC', 'RFID / NFC 标签读取与写入'),
+              ('Files', '文件管理', 'SD、LittleFS、WebUI 与文件操作'),
+              ('Scripts', '脚本', 'JavaScript 等脚本功能'),
+              ('Clock', '时钟', 'RTC、NTP 与时间功能'),
+              ('Others', '其他工具', '二维码、麦克风、USB Keyboard 等'),
+              ('Connect', '设备互联', 'ESP-NOW 等设备间连接功能'),
+              ('Config', '系统设置', '显示、启动、电源、网络与硬件配置'),
+          ]
+
+          # Convert GitHub Wiki link syntax first.
           for p in root.glob('*.md'):
               text = p.read_text(encoding='utf-8')
-              # GitHub Wiki: [[Label|Page]] -> [Label](Page.md)
               text = re.sub(r'\[\[([^\]|]+)\|([^\]]+)\]\]', lambda m: f'[{m.group(1)}]({m.group(2)}.md)', text)
-              # GitHub Wiki: [[Page]] -> [Page](Page.md)
               text = re.sub(r'\[\[([^\]|]+)\]\]', lambda m: f'[{m.group(1)}]({m.group(1)}.md)', text)
               p.write_text(text, encoding='utf-8')
+
+          files = [p for p in root.glob('*.md') if p.name != 'index.md']
+
+          def score_file(path: Path, eng: str):
+              s = path.stem.lower()
+              e = eng.lower()
+              score = 0
+              if s == e: score += 100
+              if f'bruce-{e}' in s: score += 80
+              if re.search(rf'(^|[-_]){re.escape(e)}($|[-_])', s): score += 60
+              if e in s: score += 30
+              if 'bruce' in s: score += 10
+              if '主菜单' in s or 'main-menu' in s: score -= 20
+              return score
+
+          def find_target(eng: str):
+              ranked = sorted(((score_file(p, eng), p) for p in files), key=lambda x: x[0], reverse=True)
+              if ranked and ranked[0][0] > 0:
+                  return ranked[0][1]
+              return None
+
+          # Make matching English-only headings bilingual and give them stable anchors.
+          anchors = {}
+          for eng, zh, _ in menus:
+              target = find_target(eng)
+              if not target:
+                  continue
+              text = target.read_text(encoding='utf-8')
+              anchor = 'menu-' + eng.lower()
+              pat = re.compile(rf'^(#{{1,6}})\s+{re.escape(eng)}\s*(?:\([^\n]*\)|（[^\n]*）)?\s*(?:\{{#[^}}]+\}})?\s*$', re.I | re.M)
+              repl = rf'\1 {eng}（{zh}） {{#{anchor}}}'
+              new_text, count = pat.subn(repl, text, count=1)
+              if count:
+                  target.write_text(new_text, encoding='utf-8')
+                  anchors[eng] = f'{target.name}#{anchor}'
+              else:
+                  anchors[eng] = target.name
+
+          # Generate a dedicated bilingual, clickable Bruce first-level menu page.
+          nav_page = root / 'Bruce-一级菜单-中英对照.md'
+          lines = [
+              '# Bruce 一级菜单中英对照 / Main Menu',
+              '',
+              '> 点击任意一级菜单名称，可直接跳转到对应的详细说明页面或对应章节。',
+              '',
+              '| 一级菜单 | 中文 | 主要作用 |',
+              '|---|---|---|',
+          ]
+          for eng, zh, desc in menus:
+              dest = anchors.get(eng, f'#menu-{eng.lower()}')
+              lines.append(f'| [{eng}]({dest}) | [{zh}]({dest}) | {desc} |')
+
+          lines += ['', '---', '', '## 一级菜单快速跳转', '']
+          for eng, zh, desc in menus:
+              anchor = f'menu-{eng.lower()}'
+              dest = anchors.get(eng)
+              lines += [f'### {eng}（{zh}） {{#{anchor}}}', '', desc + '。']
+              if dest:
+                  lines += ['', f'**[进入 {eng}（{zh}）详细说明 →]({dest})**']
+              else:
+                  lines += ['', '当前 Wiki 中暂未找到独立详细页，本节作为该一级菜单的跳转入口。']
+              lines += ['']
+          nav_page.write_text('\n'.join(lines), encoding='utf-8')
+
+          # Replace an existing main-menu comparison page with the clickable version, if present.
+          for p in root.glob('*.md'):
+              if p == nav_page:
+                  continue
+              n = p.stem.lower()
+              if ('主菜单' in p.stem and ('中英' in p.stem or '对照' in p.stem)) or 'main-menu' in n:
+                  p.write_text(nav_page.read_text(encoding='utf-8'), encoding='utf-8')
+
+          # Add bilingual quick links to the homepage without removing existing content.
+          index = root / 'index.md'
+          if index.exists():
+              text = index.read_text(encoding='utf-8')
+              marker = '<!-- BRUCE_MAIN_MENU_NAV -->'
+              if marker not in text:
+                  quick = [
+                      '', marker, '', '## Bruce 一级菜单快速入口 / Main Menu', '',
+                      '点击下面的菜单可以直接进入对应说明：', ''
+                  ]
+                  for eng, zh, _ in menus:
+                      dest = anchors.get(eng, f'Bruce-一级菜单-中英对照.md#menu-{eng.lower()}')
+                      quick.append(f'- [{eng}（{zh}）]({dest})')
+                  text += '\n' + '\n'.join(quick) + '\n'
+                  index.write_text(text, encoding='utf-8')
           PY
 
       - name: Build site
