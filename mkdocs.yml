@@ -1,0 +1,38 @@
+site_name: Cardputer ADV 中文 Wiki
+site_description: Cardputer ADV 使用、Bruce、LoRa、GPS、Wi-Fi 与扩展玩法中文说明
+site_url: https://gjiayu78-dev.github.io/Cardputer-ADV--Wiki/
+repo_url: https://github.com/gjiayu78-dev/Cardputer-ADV--Wiki
+repo_name: gjiayu78-dev/Cardputer-ADV--Wiki
+edit_uri: edit/main/
+
+docs_dir: .pages-docs
+site_dir: site
+use_directory_urls: true
+
+theme:
+  name: material
+  language: zh
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+plugins:
+  - search:
+      lang:
+        - zh
+        - en
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
