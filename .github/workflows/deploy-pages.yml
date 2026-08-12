@@ -18,7 +18,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout site config
         uses: actions/checkout@v4
 
       - name: Setup Python
@@ -29,28 +29,44 @@ jobs:
       - name: Install MkDocs
         run: pip install mkdocs-material
 
-      - name: Prepare docs
+      - name: Clone actual GitHub Wiki
         shell: bash
         run: |
-          rm -rf .pages-docs site
-          mkdir -p .pages-docs
-          while IFS= read -r -d '' file; do
-            rel="${file#./}"
-            mkdir -p ".pages-docs/$(dirname "$rel")"
-            cp "$file" ".pages-docs/$rel"
-          done < <(find . -type f -name '*.md' \
-            -not -path './.git/*' \
-            -not -path './.github/*' \
-            -not -path './.pages-docs/*' \
-            -not -path './site/*' -print0)
+          rm -rf wiki-source .pages-docs site
+          git clone --depth 1 "https://github.com/${GITHUB_REPOSITORY}.wiki.git" wiki-source
 
-          if [ -f '.pages-docs/00-首页.md' ]; then
-            cp '.pages-docs/00-首页.md' '.pages-docs/index.md'
-          elif [ -f '.pages-docs/README.md' ]; then
-            cp '.pages-docs/README.md' '.pages-docs/index.md'
+      - name: Prepare Wiki pages
+        shell: bash
+        run: |
+          mkdir -p .pages-docs
+          find wiki-source -maxdepth 1 -type f -name '*.md' \
+            ! -name '_Sidebar.md' ! -name '_Footer.md' ! -name '_Header.md' \
+            -exec cp {} .pages-docs/ \;
+
+          if [ -f '.pages-docs/Home.md' ]; then
+            cp '.pages-docs/Home.md' '.pages-docs/index.md'
           else
-            printf '# Cardputer ADV 中文 Wiki\n' > .pages-docs/index.md
+            first_page="$(find .pages-docs -maxdepth 1 -type f -name '*.md' | head -n 1)"
+            if [ -n "$first_page" ]; then
+              cp "$first_page" '.pages-docs/index.md'
+            else
+              printf '# Cardputer ADV 中文 Wiki\n\n未找到 GitHub Wiki 页面。\n' > .pages-docs/index.md
+            fi
           fi
+
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          root = Path('.pages-docs')
+          for p in root.glob('*.md'):
+              text = p.read_text(encoding='utf-8')
+              # GitHub Wiki: [[Label|Page]] -> [Label](Page.md)
+              text = re.sub(r'\[\[([^\]|]+)\|([^\]]+)\]\]', lambda m: f'[{m.group(1)}]({m.group(2)}.md)', text)
+              # GitHub Wiki: [[Page]] -> [Page](Page.md)
+              text = re.sub(r'\[\[([^\]|]+)\]\]', lambda m: f'[{m.group(1)}]({m.group(1)}.md)', text)
+              p.write_text(text, encoding='utf-8')
+          PY
 
       - name: Build site
         run: mkdocs build --clean
