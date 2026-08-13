@@ -43,6 +43,11 @@ jobs:
             ! -name '_Sidebar.md' ! -name '_Footer.md' ! -name '_Header.md' \
             -exec cp {} .pages-docs/ \;
 
+          # Evil-M5Project is authored in the main repository and published
+          # alongside the real GitHub Wiki at build time.
+          mkdir -p .pages-docs/Evil-M5Project
+          cp evil-m5-docs/*.md .pages-docs/Evil-M5Project/
+
           if [ -f '.pages-docs/Home.md' ]; then
             cp '.pages-docs/Home.md' '.pages-docs/index.md'
           else
@@ -278,6 +283,29 @@ jobs:
                   nav.append(f'[进入 {eng}（{cn}）详细说明 →]({dest})')
               nav.append('')
           (root / 'Bruce-完整菜单导航.md').write_text('\n'.join(nav) + '\n', encoding='utf-8')
+
+          # 首页增加 Evil-M5Project v1.5.4 快速入口。
+          if index.exists():
+              text = index.read_text(encoding='utf-8')
+              marker = '<!-- EVIL_M5PROJECT_NAV -->'
+              if marker not in text:
+                  block = [
+                      '', marker, '',
+                      '## Evil-M5Project / Evil-Cardputer v1.5.4', '',
+                      '> 按 Evil-Cardputer v1.5.4 实机英文菜单整理，中文直接跟在英文后方。', '',
+                      '- [Evil-M5Project 中文 Wiki 首页](Evil-M5Project/index.md)',
+                      '- [新手必读：SD 卡、安装、开机与按键](Evil-M5Project/start-here.md)',
+                      '- [v1.5.4 完整 89 项主菜单中英对照](Evil-M5Project/menu.md)',
+                      '- [Wi-Fi / Portal 基础功能](Evil-M5Project/wifi-core.md)',
+                      '- [无线监听与授权测试功能](Evil-M5Project/wifi-radio.md)',
+                      '- [网络、系统与实用工具](Evil-M5Project/network.md)',
+                      '- [协议 / IoT / ESP32-C5 / TagTinker / CSI Radar](Evil-M5Project/io-iot.md)',
+                      '- [Settings（设置）完整说明](Evil-M5Project/settings.md)',
+                      '- [字段字典](Evil-M5Project/fields.md)',
+                      '- [故障排查](Evil-M5Project/troubleshooting.md)',
+                  ]
+                  text += '\n' + '\n'.join(block) + '\n'
+                  index.write_text(text, encoding='utf-8')
           PY
 
       - name: Build site
